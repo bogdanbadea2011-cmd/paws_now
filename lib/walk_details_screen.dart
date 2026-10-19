@@ -163,55 +163,7 @@ class _WalkDetailsScreenState extends State<WalkDetailsScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
-
-            // Panou GPS Simulat (Corectat pentru a elimina complet avertismentul albastru)
-            Container(
-              height: 180,
-              decoration: BoxDecoration(
-                color: Colors.blueGrey.shade900,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(color: Colors.black.withAlpha(25), blurRadius: 6, offset: const Offset(0, 3))
-                ],
-              ),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Opacity(
-                    opacity: 0.1,
-                    child: Icon(Icons.grid_4x4, size: 150, color: Colors.green.shade400),
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        _isWalkingActive ? Icons.radar : Icons.map,
-                        size: 50,
-                        color: _isWalkingActive ? Colors.greenAccent : Colors.grey,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        _isWalkingActive ? 'Localizare GPS Activă...' : 'Harta se va activa la pornire',
-                        style: TextStyle(
-                          color: _isWalkingActive ? Colors.greenAccent : Colors.grey,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (_isWalkingActive)
-                    const Positioned(
-                      top: 40,
-                      right: 80,
-                      child: Icon(Icons.location_on, color: Colors.red, size: 30),
-                    ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-
+            const SizedBox(height: 24),
             Card(
               color: _isWalkingActive ? Colors.green.shade50 : Colors.grey.shade100,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -246,7 +198,6 @@ class _WalkDetailsScreenState extends State<WalkDetailsScreen> {
               ),
             ),
             const SizedBox(height: 24),
-
             ElevatedButton.icon(
               icon: Icon(_isWalkingActive ? Icons.stop : Icons.play_arrow),
               label: Text(_isWalkingActive ? 'Finalizează Plimbarea' : 'Acceptă și Începe'),
