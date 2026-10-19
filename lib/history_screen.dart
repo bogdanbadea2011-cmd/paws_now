@@ -10,7 +10,8 @@ class HistoryScreen extends StatefulWidget {
 class _HistoryScreenState extends State<HistoryScreen> {
   final TextEditingController _historySearchController = TextEditingController();
   String _historyQuery = '';
-  String _selectedStatusFilter = 'Toate'; // Filtru implicit
+  String _selectedStatusFilter = 'Toate';
+  String _sortByPrice = 'Implicit'; // Starea nouă pentru sortarea după preț
 
   final List<Map<String, String>> pastWalks = [
     {
@@ -44,8 +45,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Aplicăm dubla filtrare: după text ȘI după status
-    final filteredHistory = pastWalks.where((walk) {
+    // 1. Aplicăm mai întâi filtrarea după text și status
+    List<Map<String, String>> filteredHistory = pastWalks.where((walk) {
       final dogName = walk['dogName']!.toLowerCase();
       final query = _historyQuery.toLowerCase();
       final matchesQuery = dogName.contains(query);
@@ -54,6 +55,21 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
       return matchesQuery && matchesStatus;
     }).toList();
+
+    // 2. Aplicăm sortarea matematică în funcție de opțiunea selectată
+    if (_sortByPrice == 'Preț Crescător') {
+      filteredHistory.sort((a, b) {
+        final priceA = int.tryParse(a['price']!.replaceAll(' RON', '')) ?? 0;
+        final priceB = int.tryParse(b['price']!.replaceAll(' RON', '')) ?? 0;
+        return priceA.compareTo(priceB);
+      });
+    } else if (_sortByPrice == 'Preț Descrescător') {
+      filteredHistory.sort((a, b) {
+        final priceA = int.tryParse(a['price']!.replaceAll(' RON', '')) ?? 0;
+        final priceB = int.tryParse(b['price']!.replaceAll(' RON', '')) ?? 0;
+        return priceB.compareTo(priceA);
+      });
+    }
 
     return Scaffold(
       body: Padding(
@@ -92,31 +108,65 @@ class _HistoryScreenState extends State<HistoryScreen> {
             ),
             const SizedBox(height: 12),
 
-            // Filtre rapide (Chips) pentru Status
+            // Rândul cu Filtre status + Dropdown de Sortare Preț
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: ['Toate', 'Finalizată', 'Anulată'].map((status) {
-                final isSelected = _selectedStatusFilter == status;
-                return ChoiceChip(
-                  label: Text(status),
-                  selected: isSelected,
-                  selectedColor: Colors.blueGrey.shade400,
-                  labelStyle: TextStyle(
-                    color: isSelected ? Colors.white : Colors.black87,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: ['Toate', 'Finalizată'].map((status) {
+                    final isSelected = _selectedStatusFilter == status;
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 4.0),
+                      child: ChoiceChip(
+                        label: Text(status),
+                        selected: isSelected,
+                        selectedColor: Colors.blueGrey.shade400,
+                        labelStyle: TextStyle(
+                          color: isSelected ? Colors.white : Colors.black87,
+                          fontSize: 12,
+                        ),
+                        backgroundColor: Colors.grey.shade200,
+                        onSelected: (bool selected) {
+                          setState(() {
+                            _selectedStatusFilter = selected ? status : 'Toate';
+                          });
+                        },
+                      ),
+                    );
+                  }).toList(),
+                ),
+                
+                // Meniul Dropdown de sortare valoare
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  backgroundColor: Colors.grey.shade200,
-                  onSelected: (bool selected) {
-                    setState(() {
-                      _selectedStatusFilter = selected ? status : 'Toate';
-                    });
-                  },
-                );
-              }).toList(),
+                  child: DropdownButton<String>(
+                    value: _sortByPrice,
+                    underline: const SizedBox(),
+                    style: const TextStyle(color: Colors.black87, fontSize: 12, fontWeight: FontWeight.w500),
+                    items: <String>['Implicit', 'Preț Crescător', 'Preț Descrescător'].map((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      if (newValue != null) {
+                        setState(() {
+                          _sortByPrice = newValue;
+                        });
+                      }
+                    },
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
 
-            // Afișarea listei filtrate
+            // Afișarea listei sortate și filtrate
             Expanded(
               child: filteredHistory.isEmpty
                   ? Center(
@@ -125,9 +175,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         children: [
                           Icon(Icons.search_off, size: 48, color: Colors.grey.shade400),
                           const SizedBox(height: 12),
-                          Text(
+                          const Text(
                             'Nu s-a găsit nicio plimbare corespunzătoare.',
-                            style: TextStyle(color: Colors.grey.shade600),
+                            style: TextStyle(color: Colors.grey, fontSize: 14),
                           ),
                         ],
                       ),
