@@ -10,8 +10,8 @@ class HistoryScreen extends StatefulWidget {
 class _HistoryScreenState extends State<HistoryScreen> {
   final TextEditingController _historySearchController = TextEditingController();
   String _historyQuery = '';
+  String _selectedStatusFilter = 'Toate'; // Filtru implicit
 
-  // Lista de plimbări din trecut
   final List<Map<String, String>> pastWalks = [
     {
       'dogName': 'Rex',
@@ -44,11 +44,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Filtrarea dinamică a istoricului după numele cățelului
+    // Aplicăm dubla filtrare: după text ȘI după status
     final filteredHistory = pastWalks.where((walk) {
       final dogName = walk['dogName']!.toLowerCase();
       final query = _historyQuery.toLowerCase();
-      return dogName.contains(query);
+      final matchesQuery = dogName.contains(query);
+
+      final matchesStatus = _selectedStatusFilter == 'Toate' || walk['status'] == _selectedStatusFilter;
+
+      return matchesQuery && matchesStatus;
     }).toList();
 
     return Scaffold(
@@ -56,7 +60,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Bara de căutare în istoric
+            // Bara de căutare text
             TextField(
               controller: _historySearchController,
               decoration: InputDecoration(
@@ -73,9 +77,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         },
                       )
                     : null,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: const BorderSide(color: Colors.blueGrey, width: 2),
@@ -87,6 +89,30 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   _historyQuery = value;
                 });
               },
+            ),
+            const SizedBox(height: 12),
+
+            // Filtre rapide (Chips) pentru Status
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: ['Toate', 'Finalizată', 'Anulată'].map((status) {
+                final isSelected = _selectedStatusFilter == status;
+                return ChoiceChip(
+                  label: Text(status),
+                  selected: isSelected,
+                  selectedColor: Colors.blueGrey.shade400,
+                  labelStyle: TextStyle(
+                    color: isSelected ? Colors.white : Colors.black87,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  ),
+                  backgroundColor: Colors.grey.shade200,
+                  onSelected: (bool selected) {
+                    setState(() {
+                      _selectedStatusFilter = selected ? status : 'Toate';
+                    });
+                  },
+                );
+              }).toList(),
             ),
             const SizedBox(height: 16),
 
@@ -100,7 +126,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           Icon(Icons.search_off, size: 48, color: Colors.grey.shade400),
                           const SizedBox(height: 12),
                           Text(
-                            'Nu am găsit nicio plimbare pentru "$_historyQuery"',
+                            'Nu s-a găsit nicio plimbare corespunzătoare.',
                             style: TextStyle(color: Colors.grey.shade600),
                           ),
                         ],
@@ -114,9 +140,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
                         return Card(
                           margin: const EdgeInsets.only(bottom: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           child: ListTile(
                             contentPadding: const EdgeInsets.all(16),
                             leading: CircleAvatar(
