@@ -35,9 +35,9 @@ class _WalkerHomeScreenState extends State<WalkerHomeScreen> {
     Widget bodyContent;
 
     if (_currentIndex == 1) {
-      bodyContent = const HistoryScreen();
+      bodyContent = const HistoryScreen(); 
     } else if (_currentIndex == 2) {
-      bodyContent = const ProfileScreen();
+      bodyContent = const ProfileScreen(); 
     } else {
       bodyContent = Padding(
         padding: const EdgeInsets.all(16.0),
@@ -116,50 +116,21 @@ class _WalkerHomeScreenState extends State<WalkerHomeScreen> {
         automaticallyImplyLeading: true,
       ),
       body: bodyContent,
-      bottomNavigationBar: BottomBottomNav(
+      bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTapChanged: (index) {
+        selectedItemColor: Colors.green,
+        unselectedItemColor: Colors.grey,
+        onTap: (index) {
           setState(() {
             _currentIndex = index;
           });
         },
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Acasă'),
+          BottomNavigationBarItem(icon: Icon(Icons.history), label: 'Istoric'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
+        ],
       ),
-    );
-  }
-}
-
-// Widget separat pentru o bară de navigare curată și reutilizabilă
-class BottomBottomNav extends StatelessWidget {
-  final int currentIndex;
-  final ValueChanged<int> onTapChanged;
-
-  const BottomBottomNav({
-    super.key,
-    required this.currentIndex,
-    required this.onTapChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      currentIndex: currentIndex,
-      selectedItemColor: Colors.green,
-      unselectedItemColor: Colors.grey,
-      onTap: onTapChanged,
-      items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: 'Acasă',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.history),
-          label: 'Istoric',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: 'Profil',
-        ),
-      ],
     );
   }
 }
