@@ -13,9 +13,19 @@ class _AddDogScreenState extends State<AddDogScreen> {
   final _breedController = TextEditingController();
   final _ageController = TextEditingController();
 
+  // Pictograma implicită selectată pentru cățel
+  IconData _selectedDogIcon = Icons.pets;
+
+  // Listă de pictograme de căței disponibile pentru selectat rapid
+  final List<IconData> _availableIcons = [
+    Icons.pets,
+    Icons.cruelty_free,
+    Icons.catching_pokemon,
+    Icons.face,
+  ];
+
   void _saveDog() {
     if (_formKey.currentState!.validate()) {
-      // Trimitem datele cățelului înapoi ca un dicționar (Map)
       Navigator.pop(context, {
         'name': _nameController.text.trim(),
         'breed': _breedController.text.trim(),
@@ -50,23 +60,59 @@ class _AddDogScreenState extends State<AddDogScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // Previzualizare Avatar Cățel (se schimbă live!)
               Center(
                 child: CircleAvatar(
                   radius: 50,
                   backgroundColor: Colors.orange.shade100,
-                  child: const Icon(
-                    Icons.add_a_photo,
-                    size: 40,
+                  child: Icon(
+                    _selectedDogIcon,
+                    size: 50,
                     color: Colors.orange,
                   ),
                 ),
               ),
+              const SizedBox(height: 16),
+              
+              // Selector de Avatar
+              const Text(
+                'Alege o pictogramă pentru profil:',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14, color: Colors.grey, fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: _availableIcons.map((icon) {
+                  final isSelected = _selectedDogIcon == icon;
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _selectedDogIcon = icon; // Schimbă avatarul de sus pe loc!
+                        });
+                      },
+                      child: CircleAvatar(
+                        radius: 24,
+                        backgroundColor: isSelected ? Colors.orange : Colors.grey.shade200,
+                        child: Icon(
+                          icon,
+                          color: isSelected ? Colors.white : Colors.grey,
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
               const SizedBox(height: 32),
+
+              // Câmpuri Formular
               TextFormField(
                 controller: _nameController,
                 decoration: InputDecoration(
                   labelText: 'Numele cățelului',
-                  prefixIcon: const Icon(Icons.pets, color: Colors.orange),
+                  prefixIcon: const Icon(Icons.edit, color: Colors.orange),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 ),
                 validator: (value) => (value == null || value.trim().isEmpty) ? 'Introdu un nume' : null,
