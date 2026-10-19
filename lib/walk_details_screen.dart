@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'chat_screen.dart';
 
 class WalkDetailsScreen extends StatefulWidget {
@@ -27,6 +28,32 @@ class _WalkDetailsScreenState extends State<WalkDetailsScreen> {
   int _secondsPassed = 0;
   bool _isWalkingActive = false;
   double _kilometersWalked = 0.0;
+
+  // Controllerul pentru gestionarea hărții Google active
+  final Completer<GoogleMapController> _mapController = Completer<GoogleMapController>();
+
+  // Coordonatele inițiale (Centrul Bucureștiului - Piața Universității)
+  static const CameraPosition _initialPosition = CameraPosition(
+    target: LatLng(44.4355, 26.1025),
+    zoom: 15.0,
+  );
+
+  // Set pentru memorarea markerului de poziție al cățelului
+  final Set<Marker> _markers = {};
+
+  @override
+  void initState() {
+    super.initState();
+    // Adăugăm markerul inițial pe hartă
+    _markers.add(
+      Marker(
+        markerId: const MarkerId('dog_location'),
+        position: _initialPosition.target,
+        infoWindow: InfoWindow(title: 'Poziție ${widget.dogName}'),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
+      ),
+    );
+  }
 
   void _startWalk() {
     setState(() {
@@ -129,6 +156,7 @@ class _WalkDetailsScreenState extends State<WalkDetailsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Card Detalii Cățel
             Card(
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               elevation: 3,
@@ -163,7 +191,30 @@ class _WalkDetailsScreenState extends State<WalkDetailsScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
+
+            // NOU: COMPONENTA HĂRȚII REALE GOOGLE MAPS
+            Container(
+              height: 220,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.grey.shade300),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: GoogleMap(
+                  mapType: MapType.normal,
+                  initialCameraPosition: _initialPosition,
+                  markers: _markers,
+                  onMapCreated: (GoogleMapController controller) {
+                    _mapController.complete(controller);
+                  },
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Card Monitorizare Plimbare Activă
             Card(
               color: _isWalkingActive ? Colors.green.shade50 : Colors.grey.shade100,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -198,6 +249,7 @@ class _WalkDetailsScreenState extends State<WalkDetailsScreen> {
               ),
             ),
             const SizedBox(height: 24),
+
             ElevatedButton.icon(
               icon: Icon(_isWalkingActive ? Icons.stop : Icons.play_arrow),
               label: Text(_isWalkingActive ? 'Finalizează Plimbarea' : 'Acceptă și Începe'),
