@@ -13,7 +13,6 @@ class OwnerHomeScreen extends StatefulWidget {
 class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
   int _currentIndex = 0;
 
-  // Listă fictivă cu câinii adăugați de proprietar pentru testare
   final List<Map<String, String>> myDogs = [
     {
       'name': 'Max',
@@ -27,9 +26,28 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
     },
   ];
 
+  Future<void> _navigateAndAddDog() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AddDogScreen()),
+    );
+
+    // Rezolvarea avertismentului: Verificăm dacă ecranul mai este activ în aplicație
+    if (!mounted) return;
+
+    if (result != null && result is Map<String, String>) {
+      setState(() {
+        myDogs.add(result);
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${result['name']} a fost adăugat în listă!')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Schimbăm conținutul ecranului în funcție de tab-ul selectat jos
     Widget bodyContent;
 
     if (_currentIndex == 1) {
@@ -37,7 +55,6 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
     } else if (_currentIndex == 2) {
       bodyContent = const ProfileScreen();
     } else {
-      // Tab-ul 0: Ecranul principal cu cățeii proprietarului
       bodyContent = SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -55,7 +72,10 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
               const SizedBox(height: 16),
               myDogs.isEmpty
                   ? const Center(
-                      child: Text('Nu ai adăugat niciun cățel încă.'),
+                      child: Padding(
+                        padding: EdgeInsets.all(32.0),
+                        child: Text('Nu ai adăugat niciun cățel încă.'),
+                      ),
                     )
                   : ListView.builder(
                       shrinkWrap: true,
@@ -65,9 +85,7 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
                         final dog = myDogs[index];
                         return Card(
                           margin: const EdgeInsets.only(bottom: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           child: ListTile(
                             contentPadding: const EdgeInsets.all(16),
                             leading: CircleAvatar(
@@ -76,19 +94,14 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
                             ),
                             title: Text(
                               dog['name']!,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                             subtitle: Text('${dog['breed']} • ${dog['age']}'),
                             trailing: ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.orange,
                                 foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                               ),
                               onPressed: () {
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -110,18 +123,9 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
                     backgroundColor: Colors.orange,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const AddDogScreen(),
-                      ),
-                    );
-                  },
+                  onPressed: _navigateAndAddDog,
                 ),
               ),
             ],
@@ -154,18 +158,9 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
           });
         },
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Acasă',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.history),
-            label: 'Istoric',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profil',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Acasă'),
+          BottomNavigationBarItem(icon: Icon(Icons.history), label: 'Istoric'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
         ],
       ),
     );

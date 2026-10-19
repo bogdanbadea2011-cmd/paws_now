@@ -8,75 +8,105 @@ class AddDogScreen extends StatefulWidget {
 }
 
 class _AddDogScreenState extends State<AddDogScreen> {
-  // Controlerele care citesc textul scris de tine în căsuțe
-  final nameController = TextEditingController();
-  final breedController = TextEditingController();
-  final ageController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _breedController = TextEditingController();
+  final _ageController = TextEditingController();
+
+  void _saveDog() {
+    if (_formKey.currentState!.validate()) {
+      // Trimitem datele cățelului înapoi ca un dicționar (Map)
+      Navigator.pop(context, {
+        'name': _nameController.text.trim(),
+        'breed': _breedController.text.trim(),
+        'age': _ageController.text.trim(),
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _breedController.dispose();
+    _ageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Adaugă un Cățel'),
+        title: const Text(
+          'Adaugă un Cățel',
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        ),
         backgroundColor: Colors.orange,
-        foregroundColor: Colors.white,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(
-                labelText: 'Nume cățel',
-                border: OutlineInputBorder(),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: CircleAvatar(
+                  radius: 50,
+                  backgroundColor: Colors.orange.shade100,
+                  child: const Icon(
+                    Icons.add_a_photo,
+                    size: 40,
+                    color: Colors.orange,
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: breedController,
-              decoration: const InputDecoration(
-                labelText: 'Rasă',
-                border: OutlineInputBorder(),
+              const SizedBox(height: 32),
+              TextFormField(
+                controller: _nameController,
+                decoration: InputDecoration(
+                  labelText: 'Numele cățelului',
+                  prefixIcon: const Icon(Icons.pets, color: Colors.orange),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                validator: (value) => (value == null || value.trim().isEmpty) ? 'Introdu un nume' : null,
               ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: ageController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Vârstă (ani)',
-                border: OutlineInputBorder(),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _breedController,
+                decoration: InputDecoration(
+                  labelText: 'Rasă (ex: Golden Retriever)',
+                  prefixIcon: const Icon(Icons.dns, color: Colors.orange),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                validator: (value) => (value == null || value.trim().isEmpty) ? 'Introdu rasa' : null,
               ),
-            ),
-            const SizedBox(height: 32),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: () {
-                  // Când apeși pe buton, colectăm datele scrise
-                  String name = nameController.text;
-                  String breed = breedController.text;
-                  String age = ageController.text;
-
-                  // Dacă numele nu este gol, trimitem pachetul înapoi la ecranul principal
-                  if (name.isNotEmpty) {
-                    Navigator.pop(context, {
-                      'name': name,
-                      'breed': breed.isNotEmpty ? breed : 'Rasă necunoscută',
-                      'age': age.isNotEmpty ? age : '0',
-                    });
-                  }
-                },
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _ageController,
+                decoration: InputDecoration(
+                  labelText: 'Vârstă (ex: 2 ani)',
+                  prefixIcon: const Icon(Icons.cake, color: Colors.orange),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                validator: (value) => (value == null || value.trim().isEmpty) ? 'Introdu vârsta' : null,
+              ),
+              const SizedBox(height: 32),
+              ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.orange,
                   foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
-                child: const Text('Salvează Cățelul', style: TextStyle(fontSize: 18)),
+                onPressed: _saveDog,
+                child: const Text(
+                  'Salvează Cățelul',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
