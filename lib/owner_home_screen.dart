@@ -15,7 +15,7 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
-  // Lista dinamică cu cățeii proprietarului
+  // Lista dinamică de căței
   final List<Map<String, String>> myDogs = [
     {
       'name': 'Max',
@@ -68,7 +68,6 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
     } else if (_currentIndex == 2) {
       bodyContent = const ProfileScreen();
     } else {
-      // Filtrarea dinamică a cățeilor în funcție de textul căutat
       final filteredDogs = myDogs.where((dog) {
         final name = dog['name']!.toLowerCase();
         final breed = dog['breed']!.toLowerCase();
@@ -82,7 +81,6 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Câmpul de Căutare pentru Proprietar (Search Bar)
               TextField(
                 controller: _searchController,
                 decoration: InputDecoration(
@@ -99,10 +97,7 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
                           },
                         )
                       : null,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Colors.orange),
-                  ),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: const BorderSide(color: Colors.orange, width: 2),
@@ -116,14 +111,9 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
                 },
               ),
               const SizedBox(height: 24),
-
               const Text(
                 'Cățeii tăi',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.orange,
-                ),
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.orange),
               ),
               const SizedBox(height: 16),
 
@@ -139,8 +129,7 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
                               _searchQuery.isEmpty 
                                   ? 'Nu ai adăugat niciun cățel încă.' 
                                   : 'Nu s-a găsit niciun rezultat pentru "$_searchQuery"',
-                              style: TextStyle(color: Colors.grey.shade600),
-                              textAlign: TextAlign.center,
+                              style: const TextStyle(color: Colors.grey),
                             ),
                           ],
                         ),
@@ -166,18 +155,39 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
                               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                             subtitle: Text('${dog['breed']} • ${dog['age']}'),
-                            trailing: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.orange,
-                                foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                              ),
-                              onPressed: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Solicitare trimisă pentru ${dog['name']}!')),
-                                );
-                              },
-                              child: const Text('Solicită Plimbare'),
+                            // Secțiunea din dreapta unde punem ambele butoane în siguranță
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.orange,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                                  ),
+                                  onPressed: () {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('Solicitare trimisă pentru ${dog['name']}!')),
+                                    );
+                                  },
+                                  child: const Text('Solicită'),
+                                ),
+                                const SizedBox(width: 4),
+                                // Coșul de gunoi roșu pentru ștergere live
+                                IconButton(
+                                  icon: const Icon(Icons.delete, color: Colors.red),
+                                  onPressed: () {
+                                    setState(() {
+                                      // Găsim indexul real al cățelului în lista originală pentru a-l șterge corect
+                                      myDogs.removeWhere((element) => element['name'] == dog['name']);
+                                    });
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('${dog['name']} a fost șters.')),
+                                    );
+                                  },
+                                ),
+                              ],
                             ),
                           ),
                         );
