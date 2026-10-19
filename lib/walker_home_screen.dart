@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'walk_details_screen.dart'; // Importăm ecranul de detalii
+import 'walk_details_screen.dart';
+import 'profile_screen.dart'; // Importăm ecranul de profil
 
 class WalkerHomeScreen extends StatelessWidget {
   const WalkerHomeScreen({super.key});
@@ -11,6 +12,18 @@ class WalkerHomeScreen extends StatelessWidget {
         title: const Text('Paws Now - Dog Walker'),
         backgroundColor: Colors.green,
         foregroundColor: Colors.white,
+        // Adăugăm iconița de profil în bara verde de sus
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.account_circle, size: 28),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfileScreen()),
+              );
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -29,7 +42,6 @@ class WalkerHomeScreen extends StatelessWidget {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               child: ListTile(
                 onTap: () {
-                  // Deschide detaliile pentru Rex
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -56,7 +68,6 @@ class WalkerHomeScreen extends StatelessWidget {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               child: ListTile(
                 onTap: () {
-                  // Deschide detaliile pentru Bella
                   Navigator.push(
                     context,
                     MaterialPageRoute(
