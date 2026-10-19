@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'add_dog_screen.dart';
+import 'profile_screen.dart';
 
 class OwnerHomeScreen extends StatefulWidget {
   const OwnerHomeScreen({super.key});
@@ -20,6 +21,17 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
         title: const Text('Paws Now - Proprietar'),
         backgroundColor: Colors.orange,
         foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.account_circle, size: 28),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfileScreen()),
+              );
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -44,12 +56,10 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
                       leading: const Icon(Icons.pets, size: 40, color: Colors.orange),
                       title: Text(dog['name'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
                       subtitle: Text('${dog['breed']} • ${dog['age']} ani'),
-                      // Adăugăm butonul de ștergere în dreapta
                       trailing: IconButton(
                         icon: const Icon(Icons.delete, color: Colors.red),
                         onPressed: () {
                           setState(() {
-                            // Eliminăm cățelul selectat din listă
                             myDogs.removeAt(index);
                           });
                           ScaffoldMessenger.of(context).showSnackBar(
