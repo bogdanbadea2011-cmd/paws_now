@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "113542095506",
+    "project_id": "pawsnow-b9aa7",
+    "storage_bucket": "pawsnow-b9aa7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:113542095506:android:d4fca7e51203b631967c4b",
+        "android_client_info": {
+          "package_name": "com.example.paws_now"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDoYbDa_o8GRXLKOOFV3oI29jPVXzWGy4U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
