@@ -13,9 +13,11 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  
+  // Variabilă nouă pentru starea vizibilității parolei
+  bool _obscurePassword = true;
 
   void _navigateToHome(bool isWalker) {
-    // Validăm formularul înainte de a schimba ecranul
     if (_formKey.currentState!.validate()) {
       Navigator.pushReplacement(
         context,
@@ -41,7 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
           child: Form(
-            key: _formKey, // Legăm cheia globală pentru validare
+            key: _formKey,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -64,7 +66,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 40),
 
-                // Câmp Email cu Validare Avansată
+                // Câmp Email
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
@@ -77,23 +79,34 @@ class _LoginScreenState extends State<LoginScreen> {
                     if (value == null || value.trim().isEmpty) {
                       return 'Te rugăm să introduci o adresă de email';
                     }
-                    // Expresie regulată (RegEx) pentru a verifica formatul corect de email
                     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
                     if (!emailRegex.hasMatch(value.trim())) {
-                      return 'Te rugăm să introduci un email valid (ex: nume@email.com)';
+                      return 'Te rugăm să introduci un email valid';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 16),
 
-                // Câmp Parolă cu Validare de Lungime
+                // Câmp Parolă modificat cu Arată/Ascunde
                 TextFormField(
                   controller: _passwordController,
-                  obscureText: true,
+                  obscureText: _obscurePassword, // Folosește starea dinamică
                   decoration: InputDecoration(
                     labelText: 'Parolă',
                     prefixIcon: const Icon(Icons.lock, color: Colors.orange),
+                    // Adăugăm butonul de ochișor în dreapta (suffixIcon)
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                        color: Colors.grey,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscurePassword = !_obscurePassword; // Inversează starea la click
+                        });
+                      },
+                    ),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   validator: (value) {
