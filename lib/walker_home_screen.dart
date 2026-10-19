@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'walk_details_screen.dart';
+import 'history_screen.dart'; 
+import 'profile_screen.dart'; 
 
 class WalkerHomeScreen extends StatefulWidget {
   const WalkerHomeScreen({super.key});
@@ -9,6 +11,8 @@ class WalkerHomeScreen extends StatefulWidget {
 }
 
 class _WalkerHomeScreenState extends State<WalkerHomeScreen> {
+  int _currentIndex = 0;
+
   final List<Map<String, String>> _dogsInArea = [
     {
       'dogName': 'Rex',
@@ -28,16 +32,14 @@ class _WalkerHomeScreenState extends State<WalkerHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Paws Now - Dog Walker',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-        ),
-        backgroundColor: Colors.green,
-        automaticallyImplyLeading: true,
-      ),
-      body: Padding(
+    Widget bodyContent;
+
+    if (_currentIndex == 1) {
+      bodyContent = const HistoryScreen();
+    } else if (_currentIndex == 2) {
+      bodyContent = const ProfileScreen();
+    } else {
+      bodyContent = Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -97,7 +99,67 @@ class _WalkerHomeScreenState extends State<WalkerHomeScreen> {
             ),
           ],
         ),
+      );
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          _currentIndex == 0 
+              ? 'Paws Now - Dog Walker' 
+              : _currentIndex == 1 
+                  ? 'Istoric Activitate' 
+                  : 'Profil',
+          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+        backgroundColor: Colors.green,
+        automaticallyImplyLeading: true,
       ),
+      body: bodyContent,
+      bottomNavigationBar: BottomBottomNav(
+        currentIndex: _currentIndex,
+        onTapChanged: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+      ),
+    );
+  }
+}
+
+// Widget separat pentru o bară de navigare curată și reutilizabilă
+class BottomBottomNav extends StatelessWidget {
+  final int currentIndex;
+  final ValueChanged<int> onTapChanged;
+
+  const BottomBottomNav({
+    super.key,
+    required this.currentIndex,
+    required this.onTapChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BottomNavigationBar(
+      currentIndex: currentIndex,
+      selectedItemColor: Colors.green,
+      unselectedItemColor: Colors.grey,
+      onTap: onTapChanged,
+      items: const [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home),
+          label: 'Acasă',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.history),
+          label: 'Istoric',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.person),
+          label: 'Profil',
+        ),
+      ],
     );
   }
 }
