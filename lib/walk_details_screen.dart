@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'chat_screen.dart'; // Importăm ecranul de chat nou creat
 
 class WalkDetailsScreen extends StatefulWidget {
   final String dogName;
@@ -106,6 +107,22 @@ class _WalkDetailsScreenState extends State<WalkDetailsScreen> {
         ),
         backgroundColor: Colors.green,
         iconTheme: const IconThemeData(color: Colors.white),
+        actions: [
+          // Butonul de Chat în colțul din dreapta sus al barei
+          IconButton(
+            icon: const Icon(Icons.chat, color: Colors.white),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ChatScreen(
+                    chatWith: '${widget.ownerName} (Proprietar)',
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),

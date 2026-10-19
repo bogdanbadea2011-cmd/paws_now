@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'add_dog_screen.dart';
+import 'history_screen.dart';
 import 'profile_screen.dart';
 
 class OwnerHomeScreen extends StatefulWidget {
@@ -10,104 +11,162 @@ class OwnerHomeScreen extends StatefulWidget {
 }
 
 class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
+  int _currentIndex = 0;
+
+  // Listă fictivă cu câinii adăugați de proprietar pentru testare
   final List<Map<String, String>> myDogs = [
-    {'name': 'Rex', 'breed': 'Golden Retriever', 'age': '2'},
+    {
+      'name': 'Max',
+      'breed': 'Golden Retriever',
+      'age': '2 ani',
+    },
+    {
+      'name': 'Luna',
+      'breed': 'Beagle',
+      'age': '1 an',
+    },
   ];
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Paws Now - Proprietar'),
-        backgroundColor: Colors.orange,
-        foregroundColor: Colors.white,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.account_circle, size: 28),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ProfileScreen()),
-              );
-            },
-          ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Cățeii tăi',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: ListView.builder(
-                itemCount: myDogs.length,
-                itemBuilder: (context, index) {
-                  final dog = myDogs[index];
-                  return Card(
-                    elevation: 4,
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    child: ListTile(
-                      leading: const Icon(Icons.pets, size: 40, color: Colors.orange),
-                      title: Text(dog['name'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                      subtitle: Text('${dog['breed']} • ${dog['age']} ani'),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () {
-                          setState(() {
-                            myDogs.removeAt(index);
-                          });
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('${dog['name']} a fost eliminat')),
-                          );
-                        },
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Căutare plimbători în zonă...')),
-                  );
-                },
-                icon: const Icon(Icons.search),
-                label: const Text('Caută un Plimbător'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  foregroundColor: Colors.white,
+    // Schimbăm conținutul ecranului în funcție de tab-ul selectat jos
+    Widget bodyContent;
+
+    if (_currentIndex == 1) {
+      bodyContent = const HistoryScreen();
+    } else if (_currentIndex == 2) {
+      bodyContent = const ProfileScreen();
+    } else {
+      // Tab-ul 0: Ecranul principal cu cățeii proprietarului
+      bodyContent = SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Cățeii tăi',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.orange,
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              myDogs.isEmpty
+                  ? const Center(
+                      child: Text('Nu ai adăugat niciun cățel încă.'),
+                    )
+                  : ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: myDogs.length,
+                      itemBuilder: (context, index) {
+                        final dog = myDogs[index];
+                        return Card(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: ListTile(
+                            contentPadding: const EdgeInsets.all(16),
+                            leading: CircleAvatar(
+                              backgroundColor: Colors.orange.shade100,
+                              child: const Icon(Icons.pets, color: Colors.orange),
+                            ),
+                            title: Text(
+                              dog['name']!,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            subtitle: Text('${dog['breed']} • ${dog['age']}'),
+                            trailing: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.orange,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              onPressed: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Solicitare trimisă pentru ${dog['name']}!')),
+                                );
+                              },
+                              child: const Text('Solicită Plimbare'),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+              const SizedBox(height: 24),
+              Center(
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.add),
+                  label: const Text('Adaugă un cățel nou'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AddDogScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.orange,
-        foregroundColor: Colors.white,
-        onPressed: () async {
-          final result = await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const AddDogScreen()),
-          );
+      );
+    }
 
-          if (result != null && result is Map<String, String>) {
-            setState(() {
-              myDogs.add(result);
-            });
-          }
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          _currentIndex == 0 
+              ? 'PawsNow - Proprietar' 
+              : _currentIndex == 1 
+                  ? 'Istoric Plimbări' 
+                  : 'Profilul Meu',
+          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+        backgroundColor: Colors.orange,
+        automaticallyImplyLeading: true,
+      ),
+      body: bodyContent,
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        selectedItemColor: Colors.orange,
+        unselectedItemColor: Colors.grey,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
         },
-        child: const Icon(Icons.add),
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Acasă',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.history),
+            label: 'Istoric',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profil',
+          ),
+        ],
       ),
     );
   }
