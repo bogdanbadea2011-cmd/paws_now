@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'add_dog_screen.dart';
 
 class OwnerHomeScreen extends StatelessWidget {
   const OwnerHomeScreen({super.key});
@@ -17,7 +18,7 @@ class OwnerHomeScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Cățelul tău',
+              'Cățeii tăi',
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
@@ -37,11 +38,11 @@ class OwnerHomeScreen extends StatelessWidget {
               child: ElevatedButton.icon(
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Funcționalitate: Caută un plimbător...')),
+                    const SnackBar(content: Text('Căutare plimbători în zonă...')),
                   );
                 },
                 icon: const Icon(Icons.search),
-                label: const Text('Caută un Plimbător acasă'),
+                label: const Text('Caută un Plimbător'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.orange,
                   foregroundColor: Colors.white,
@@ -50,6 +51,17 @@ class OwnerHomeScreen extends StatelessWidget {
             ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.orange,
+        foregroundColor: Colors.white,
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AddDogScreen()),
+          );
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }
