@@ -14,29 +14,44 @@ class _WalkerHomeScreenState extends State<WalkerHomeScreen> {
   int _currentIndex = 0;
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  String _selectedSize = 'Toți'; 
 
-  // Lista completă de câini disponibili în zonă
   final List<Map<String, String>> _allDogs = [
     {
       'dogName': 'Rex',
+      'breed': 'Ciobănesc German',
       'ownerName': 'Andrei',
       'duration': '45 min',
       'price': '30 RON',
       'distance': '500m',
+      'size': 'Mare',
     },
     {
       'dogName': 'Bella',
+      'breed': 'Beagle',
       'ownerName': 'Ioana',
       'duration': '60 min',
       'price': '40 RON',
       'distance': '1.2km',
+      'size': 'Mediu',
+    },
+    {
+      'dogName': 'Papi',
+      'breed': 'Chihuahua',
+      'ownerName': 'Elena',
+      'duration': '30 min',
+      'price': '25 RON',
+      'distance': '300m',
+      'size': 'Mic',
     },
     {
       'dogName': 'Max',
+      'breed': 'Rotweiler',
       'ownerName': 'Mihai',
-      'duration': '30 min',
-      'price': '25 RON',
+      'duration': '50 min',
+      'price': '35 RON',
       'distance': '800m',
+      'size': 'Mare',
     },
   ];
 
@@ -55,12 +70,13 @@ class _WalkerHomeScreenState extends State<WalkerHomeScreen> {
     } else if (_currentIndex == 2) {
       bodyContent = const ProfileScreen(); 
     } else {
-      // Filtrarea dinamică a listei în funcție de textul introdus în bara de căutare
       final filteredDogs = _allDogs.where((dog) {
         final name = dog['dogName']!.toLowerCase();
-        final owner = dog['ownerName']!.toLowerCase();
+        final breed = dog['breed']!.toLowerCase();
         final query = _searchQuery.toLowerCase();
-        return name.contains(query) || owner.contains(query);
+        final matchesQuery = name.contains(query) || breed.contains(query);
+        final matchesSize = _selectedSize == 'Toți' || dog['size'] == _selectedSize;
+        return matchesQuery && matchesSize;
       }).toList();
 
       bodyContent = Padding(
@@ -68,11 +84,10 @@ class _WalkerHomeScreenState extends State<WalkerHomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Câmpul vizual de Căutare (Search Bar)
             TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Caută un cățel sau un proprietar...',
+                hintText: 'Caută după nume sau rasă...',
                 prefixIcon: const Icon(Icons.search, color: Colors.green),
                 suffixIcon: _searchQuery.isNotEmpty
                     ? IconButton(
@@ -85,10 +100,7 @@ class _WalkerHomeScreenState extends State<WalkerHomeScreen> {
                         },
                       )
                     : null,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: Colors.green),
-                ),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: const BorderSide(color: Colors.green, width: 2),
@@ -97,19 +109,38 @@ class _WalkerHomeScreenState extends State<WalkerHomeScreen> {
               ),
               onChanged: (value) {
                 setState(() {
-                  _searchQuery = value; // Actualizează lista la fiecare literă tastată
+                  _searchQuery = value;
                 });
               },
+            ),
+            const SizedBox(height: 12),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: ['Toți', 'Mic', 'Mediu', 'Mare'].map((size) {
+                final isSelected = _selectedSize == size;
+                return ChoiceChip(
+                  label: Text(size),
+                  selected: isSelected,
+                  selectedColor: Colors.green.shade400,
+                  // Corectat eroarea de stilizare a textului de la linia 132
+                  labelStyle: TextStyle(
+                    color: isSelected ? Colors.white : Colors.black87,
+                  ),
+                  backgroundColor: Colors.grey.shade200,
+                  onSelected: (bool selected) {
+                    setState(() {
+                      _selectedSize = selected ? size : 'Toți';
+                    });
+                  },
+                );
+              }).toList(),
             ),
             const SizedBox(height: 20),
             
             const Text(
               'Câini disponibili în apropiere',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
             ),
             const SizedBox(height: 12),
             
@@ -121,9 +152,9 @@ class _WalkerHomeScreenState extends State<WalkerHomeScreen> {
                         children: [
                           Icon(Icons.search_off, size: 64, color: Colors.grey.shade400),
                           const SizedBox(height: 12),
-                          Text(
-                            'Nu am găsit niciun cățel pentru "$_searchQuery"',
-                            style: TextStyle(color: Colors.grey.shade600, fontSize: 15),
+                          const Text(
+                            'Nu am găsit niciun cățel cu aceste filtre.',
+                            style: TextStyle(color: Colors.grey, fontSize: 15),
                           ),
                         ],
                       ),
@@ -134,9 +165,7 @@ class _WalkerHomeScreenState extends State<WalkerHomeScreen> {
                         final dog = filteredDogs[index];
                         return Card(
                           margin: const EdgeInsets.only(bottom: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           child: ListTile(
                             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                             leading: CircleAvatar(
@@ -144,12 +173,16 @@ class _WalkerHomeScreenState extends State<WalkerHomeScreen> {
                               child: const Icon(Icons.pets, color: Colors.orange),
                             ),
                             title: Text(
-                              '${dog['dogName']} (Proprietar: ${dog['ownerName']})',
+                              '${dog['dogName']} (${dog['breed']})',
                               style: const TextStyle(fontWeight: FontWeight.bold),
                             ),
-                            subtitle: Text(
-                              'Plimbare de ${dog['duration']} • ${dog['price']} • Distanță: ${dog['distance']}',
-                              style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 4),
+                                Text('Talie: ${dog['size']} • Distanță: ${dog['distance']}'),
+                                Text('Durată: ${dog['duration']} • Preț: ${dog['price']}'),
+                              ],
                             ),
                             trailing: const Icon(Icons.chevron_right, color: Colors.grey),
                             onTap: () {
