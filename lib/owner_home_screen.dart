@@ -12,7 +12,10 @@ class OwnerHomeScreen extends StatefulWidget {
 
 class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
   int _currentIndex = 0;
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
 
+  // Lista dinamică cu cățeii proprietarului
   final List<Map<String, String>> myDogs = [
     {
       'name': 'Max',
@@ -24,6 +27,11 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
       'breed': 'Beagle',
       'age': '1 an',
     },
+    {
+      'name': 'Oscar',
+      'breed': 'Pug',
+      'age': '3 ani',
+    },
   ];
 
   Future<void> _navigateAndAddDog() async {
@@ -32,7 +40,6 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
       MaterialPageRoute(builder: (context) => const AddDogScreen()),
     );
 
-    // Rezolvarea avertismentului: Verificăm dacă ecranul mai este activ în aplicație
     if (!mounted) return;
 
     if (result != null && result is Map<String, String>) {
@@ -47,6 +54,12 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
   }
 
   @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     Widget bodyContent;
 
@@ -55,12 +68,55 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
     } else if (_currentIndex == 2) {
       bodyContent = const ProfileScreen();
     } else {
+      // Filtrarea dinamică a cățeilor în funcție de textul căutat
+      final filteredDogs = myDogs.where((dog) {
+        final name = dog['name']!.toLowerCase();
+        final breed = dog['breed']!.toLowerCase();
+        final query = _searchQuery.toLowerCase();
+        return name.contains(query) || breed.contains(query);
+      }).toList();
+
       bodyContent = SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Câmpul de Căutare pentru Proprietar (Search Bar)
+              TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  hintText: 'Caută după numele sau rasa cățelului...',
+                  prefixIcon: const Icon(Icons.search, color: Colors.orange),
+                  suffixIcon: _searchQuery.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear, color: Colors.grey),
+                          onPressed: () {
+                            setState(() {
+                              _searchController.clear();
+                              _searchQuery = '';
+                            });
+                          },
+                        )
+                      : null,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Colors.orange),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Colors.orange, width: 2),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    _searchQuery = value;
+                  });
+                },
+              ),
+              const SizedBox(height: 24),
+
               const Text(
                 'Cățeii tăi',
                 style: TextStyle(
@@ -70,19 +126,32 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              myDogs.isEmpty
-                  ? const Center(
+
+              filteredDogs.isEmpty
+                  ? Center(
                       child: Padding(
-                        padding: EdgeInsets.all(32.0),
-                        child: Text('Nu ai adăugat niciun cățel încă.'),
+                        padding: const EdgeInsets.all(32.0),
+                        child: Column(
+                          children: [
+                            Icon(Icons.search_off, size: 48, color: Colors.grey.shade400),
+                            const SizedBox(height: 12),
+                            Text(
+                              _searchQuery.isEmpty 
+                                  ? 'Nu ai adăugat niciun cățel încă.' 
+                                  : 'Nu s-a găsit niciun rezultat pentru "$_searchQuery"',
+                              style: TextStyle(color: Colors.grey.shade600),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
                       ),
                     )
                   : ListView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                      itemCount: myDogs.length,
+                      itemCount: filteredDogs.length,
                       itemBuilder: (context, index) {
-                        final dog = myDogs[index];
+                        final dog = filteredDogs[index];
                         return Card(
                           margin: const EdgeInsets.only(bottom: 12),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
