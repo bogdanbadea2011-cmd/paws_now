@@ -1,8 +1,37 @@
 import 'package:flutter/material.dart';
-import 'role_selection_screen.dart';
+import 'walker_home_screen.dart';
+import 'owner_home_screen.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  void _navigateToHome(bool isWalker) {
+    // Validăm formularul înainte de a schimba ecranul
+    if (_formKey.currentState!.validate()) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => isWalker ? const WalkerHomeScreen() : const OwnerHomeScreen(),
+        ),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -10,89 +39,103 @@ class LoginScreen extends StatelessWidget {
       backgroundColor: Colors.white,
       body: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(32.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Iconiță stilizată ca Logo interimar
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.orange.shade100,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.pets,
-                  size: 80,
-                  color: Colors.orange,
-                ),
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                'Paws Now',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                  letterSpacing: 1.2,
-                ),
-              ),
-              const Text(
-                'Plimbări fericite pentru cățelul tău',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey,
-                ),
-              ),
-              const SizedBox(height: 48),
-              // Câmp Email (Doar vizual momentan)
-              TextField(
-                decoration: InputDecoration(
-                  labelText: 'Email',
-                  prefixIcon: const Icon(Icons.email_outlined),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+          padding: const EdgeInsets.all(24.0),
+          child: Form(
+            key: _formKey, // Legăm cheia globală pentru validare
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Icon(Icons.pets, size: 80, color: Colors.orange),
+                const SizedBox(height: 16),
+                const Text(
+                  'PawsNow',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.orange,
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              // Câmp Parolă (Doar vizual momentan)
-              TextField(
-                obscureText: true,
-                decoration: InputDecoration(
-                  labelText: 'Parolă',
-                  prefixIcon: const Icon(Icons.lock_outline),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                const Text(
+                  'Aplicația ta pentru plimbat căței',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
                 ),
-              ),
-              const SizedBox(height: 32),
-              // Buton de Login stilizat
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const RoleSelectionScreen()),
-                    );
+                const SizedBox(height: 40),
+
+                // Câmp Email cu Validare Avansată
+                TextFormField(
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: InputDecoration(
+                    labelText: 'Email',
+                    prefixIcon: const Icon(Icons.email, color: Colors.orange),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Te rugăm să introduci o adresă de email';
+                    }
+                    // Expresie regulată (RegEx) pentru a verifica formatul corect de email
+                    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+                    if (!emailRegex.hasMatch(value.trim())) {
+                      return 'Te rugăm să introduci un email valid (ex: nume@email.com)';
+                    }
+                    return null;
                   },
+                ),
+                const SizedBox(height: 16),
+
+                // Câmp Parolă cu Validare de Lungime
+                TextFormField(
+                  controller: _passwordController,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    labelText: 'Parolă',
+                    prefixIcon: const Icon(Icons.lock, color: Colors.orange),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Te rugăm să introduci parola';
+                    }
+                    if (value.length < 6) {
+                      return 'Parola trebuie să aibă minimum 6 caractere';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 32),
+
+                // Buton Autentificare ca Walker
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.directions_walk),
+                  label: const Text('Intră ca Walker (Plimbător)'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  onPressed: () => _navigateToHome(true),
+                ),
+                const SizedBox(height: 12),
+
+                // Buton Autentificare ca Owner
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.person),
+                  label: const Text('Intră ca Owner (Proprietar)'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange,
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: const Text(
-                    'Autentificare',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
+                  onPressed: () => _navigateToHome(false),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
