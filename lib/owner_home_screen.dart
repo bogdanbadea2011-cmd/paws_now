@@ -9,7 +9,6 @@ class OwnerHomeScreen extends StatefulWidget {
 }
 
 class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
-  // Lista inițială care conține doar pe Rex. Aici se vor adăuga cățeii noi!
   final List<Map<String, String>> myDogs = [
     {'name': 'Rex', 'breed': 'Golden Retriever', 'age': '2'},
   ];
@@ -32,8 +31,6 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            
-            // Această secțiune generează automat carduri pentru fiecare cățel din listă
             Expanded(
               child: ListView.builder(
                 itemCount: myDogs.length,
@@ -47,12 +44,24 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
                       leading: const Icon(Icons.pets, size: 40, color: Colors.orange),
                       title: Text(dog['name'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
                       subtitle: Text('${dog['breed']} • ${dog['age']} ani'),
+                      // Adăugăm butonul de ștergere în dreapta
+                      trailing: IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () {
+                          setState(() {
+                            // Eliminăm cățelul selectat din listă
+                            myDogs.removeAt(index);
+                          });
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('${dog['name']} a fost eliminat')),
+                          );
+                        },
+                      ),
                     ),
                   );
                 },
               ),
             ),
-            
             SizedBox(
               width: double.infinity,
               height: 50,
@@ -77,13 +86,11 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
         backgroundColor: Colors.orange,
         foregroundColor: Colors.white,
         onPressed: () async {
-          // Deschem ecranul de adăugare și așteptăm să primim datele noului cățel
           final result = await Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const AddDogScreen()),
           );
 
-          // Dacă utilizatorul a salvat un cățel, îl adăugăm în listă și împrospătăm ecranul
           if (result != null && result is Map<String, String>) {
             setState(() {
               myDogs.add(result);
