@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'chat_screen.dart'; // Importăm ecranul de chat nou creat
+import 'chat_screen.dart';
 
 class WalkDetailsScreen extends StatefulWidget {
   final String dogName;
@@ -52,7 +52,8 @@ class _WalkDetailsScreenState extends State<WalkDetailsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Plimbare Finalizată! 🎉'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Plimbare Finalizată! 🎉', style: TextStyle(fontWeight: FontWeight.bold)),
         content: Text(
           'Ai plimbat-o pe ${widget.dogName} timp de ${_formatTime(_secondsPassed)} '
           'și ai parcurs ${_kilometersWalked.toStringAsFixed(2)} km.\n\n'
@@ -64,7 +65,7 @@ class _WalkDetailsScreenState extends State<WalkDetailsScreen> {
               Navigator.pop(context);
               Navigator.pop(context);
             },
-            child: const Text('Ok'),
+            child: const Text('Ok', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -108,7 +109,6 @@ class _WalkDetailsScreenState extends State<WalkDetailsScreen> {
         backgroundColor: Colors.green,
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
-          // Butonul de Chat în colțul din dreapta sus al barei
           IconButton(
             icon: const Icon(Icons.chat, color: Colors.white),
             onPressed: () {
@@ -137,20 +137,20 @@ class _WalkDetailsScreenState extends State<WalkDetailsScreen> {
                 child: Column(
                   children: [
                     CircleAvatar(
-                      radius: 40,
+                      radius: 35,
                       backgroundColor: Colors.green.shade100,
-                      child: const Icon(Icons.pets, size: 40, color: Colors.green),
+                      child: const Icon(Icons.pets, size: 35, color: Colors.green),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
                     Text(
                       widget.dogName,
-                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                      style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                     ),
                     Text(
                       'Proprietar: ${widget.ownerName}',
-                      style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+                      style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
                     ),
-                    const Divider(height: 32, thickness: 1),
+                    const Divider(height: 24, thickness: 1),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
@@ -163,12 +163,60 @@ class _WalkDetailsScreenState extends State<WalkDetailsScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
+
+            // Panou GPS Simulat (Corectat pentru a elimina complet avertismentul albastru)
+            Container(
+              height: 180,
+              decoration: BoxDecoration(
+                color: Colors.blueGrey.shade900,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(color: Colors.black.withAlpha(25), blurRadius: 6, offset: const Offset(0, 3))
+                ],
+              ),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Opacity(
+                    opacity: 0.1,
+                    child: Icon(Icons.grid_4x4, size: 150, color: Colors.green.shade400),
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        _isWalkingActive ? Icons.radar : Icons.map,
+                        size: 50,
+                        color: _isWalkingActive ? Colors.greenAccent : Colors.grey,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        _isWalkingActive ? 'Localizare GPS Activă...' : 'Harta se va activa la pornire',
+                        style: TextStyle(
+                          color: _isWalkingActive ? Colors.greenAccent : Colors.grey,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (_isWalkingActive)
+                    const Positioned(
+                      top: 40,
+                      right: 80,
+                      child: Icon(Icons.location_on, color: Colors.red, size: 30),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
             Card(
               color: _isWalkingActive ? Colors.green.shade50 : Colors.grey.shade100,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               child: Padding(
-                padding: const EdgeInsets.all(24.0),
+                padding: const EdgeInsets.all(20.0),
                 child: Column(
                   children: [
                     Text(
@@ -179,25 +227,26 @@ class _WalkDetailsScreenState extends State<WalkDetailsScreen> {
                         letterSpacing: 1.2,
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 8),
                     Text(
                       _formatTime(_secondsPassed),
                       style: const TextStyle(
-                        fontSize: 48,
+                        fontSize: 40,
                         fontWeight: FontWeight.bold,
                         fontFamily: 'monospace',
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 4),
                     Text(
                       'Distanță parcursă: ${_kilometersWalked.toStringAsFixed(2)} km',
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
                     ),
                   ],
                 ),
               ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 24),
+
             ElevatedButton.icon(
               icon: Icon(_isWalkingActive ? Icons.stop : Icons.play_arrow),
               label: Text(_isWalkingActive ? 'Finalizează Plimbarea' : 'Acceptă și Începe'),
