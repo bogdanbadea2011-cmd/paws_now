@@ -1,29 +1,41 @@
 import 'package:flutter/material.dart';
 import 'walk_details_screen.dart';
-import 'profile_screen.dart'; // Importăm ecranul de profil
 
-class WalkerHomeScreen extends StatelessWidget {
+class WalkerHomeScreen extends StatefulWidget {
   const WalkerHomeScreen({super.key});
+
+  @override
+  State<WalkerHomeScreen> createState() => _WalkerHomeScreenState();
+}
+
+class _WalkerHomeScreenState extends State<WalkerHomeScreen> {
+  final List<Map<String, String>> _dogsInArea = [
+    {
+      'dogName': 'Rex',
+      'ownerName': 'Andrei',
+      'duration': '45 min',
+      'price': '30 RON',
+      'distance': '500m',
+    },
+    {
+      'dogName': 'Bella',
+      'ownerName': 'Ioana',
+      'duration': '60 min',
+      'price': '40 RON',
+      'distance': '1.2km',
+    },
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Paws Now - Dog Walker'),
+        title: const Text(
+          'Paws Now - Dog Walker',
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        ),
         backgroundColor: Colors.green,
-        foregroundColor: Colors.white,
-        // Adăugăm iconița de profil în bara verde de sus
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.account_circle, size: 28),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ProfileScreen()),
-              );
-            },
-          ),
-        ],
+        automaticallyImplyLeading: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -32,58 +44,55 @@ class WalkerHomeScreen extends StatelessWidget {
           children: [
             const Text(
               'Câini disponibili în zonă',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            
-            // Cardul 1: Rex
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              child: ListTile(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const WalkDetailsScreen(
-                        dogName: 'Rex',
-                        ownerName: 'Andrei',
-                        reward: '30 RON',
-                        duration: '45 min',
-                      ),
-                    ),
-                  );
-                },
-                leading: const Icon(Icons.pets, size: 40, color: Colors.orange),
-                title: const Text('Rex (Proprietar: Andrei)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                subtitle: const Text('Plimbare de 45 min • 30 RON • Distanță: 500m'),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
               ),
             ),
-            const SizedBox(height: 12),
-            
-            // Cardul 2: Bella
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              child: ListTile(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const WalkDetailsScreen(
-                        dogName: 'Bella',
-                        ownerName: 'Ioana',
-                        reward: '40 RON',
-                        duration: '60 min',
+            const SizedBox(height: 16),
+            Expanded(
+              child: ListView.builder(
+                itemCount: _dogsInArea.length,
+                itemBuilder: (context, index) {
+                  final dog = _dogsInArea[index];
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      leading: CircleAvatar(
+                        backgroundColor: Colors.orange.shade100,
+                        child: const Icon(Icons.pets, color: Colors.orange),
                       ),
+                      title: Text(
+                        '${dog['dogName']} (Proprietar: ${dog['ownerName']})',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Text(
+                        'Plimbare de ${dog['duration']} • ${dog['price']} • Distanță: ${dog['distance']}',
+                        style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                      ),
+                      trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => WalkDetailsScreen(
+                              dogName: dog['dogName']!,
+                              ownerName: dog['ownerName']!,
+                              duration: dog['duration']!,
+                              price: dog['price']!,
+                              distance: dog['distance']!,
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   );
                 },
-                leading: const Icon(Icons.pets, size: 40, color: Colors.brown),
-                title: const Text('Bella (Proprietar: Ioana)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                subtitle: const Text('Plimbare de 60 min • 40 RON • Distanță: 1.2km'),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
               ),
             ),
           ],
