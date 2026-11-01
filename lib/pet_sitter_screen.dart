@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class PetSitterScreen extends StatefulWidget {
   const PetSitterScreen({super.key});
@@ -9,8 +11,15 @@ class PetSitterScreen extends StatefulWidget {
 
 class _PetSitterScreenState extends State<PetSitterScreen> {
   DateTimeRange? _selectedDateRange;
+  final Completer<GoogleMapController> _mapController = Completer<GoogleMapController>();
 
-  // Funcție care deschide calendarul pentru selectarea perioadei de vacanță
+  // Coordonatele inițiale (Centrul Bucureștiului) identice cu cele din proiectul tău
+  static const CameraPosition _initialPosition = CameraPosition(
+    target: LatLng(44.4355, 26.1025),
+    zoom: 14.0,
+  );
+
+  // Funcție pentru deschiderea calendarului
   Future<void> _selectDateRange(BuildContext context) async {
     final DateTimeRange? picked = await showDateRangePicker(
       context: context,
@@ -35,7 +44,7 @@ class _PetSitterScreenState extends State<PetSitterScreen> {
       ),
       body: Column(
         children: [
-          // 📅 ZONA 1: Selectorul pentru perioada vacanței
+          // Selectorul perioadei de vacanță
           Container(
             padding: const EdgeInsets.all(16.0),
             color: Colors.blue.shade50,
@@ -57,31 +66,16 @@ class _PetSitterScreenState extends State<PetSitterScreen> {
               ],
             ),
           ),
-
-          // 🗺️ ZONA 2: Locul unde vom afișa harta Google Maps
+          
+          // Harta reală Google Maps
           Expanded(
-            child: Container(
-              color: Colors.grey.shade200,
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.map, size: 60, color: Colors.grey),
-                    const SizedBox(height: 10),
-                    const Text(
-                      'Aici va fi încărcată harta cu sitteri',
-                      style: TextStyle(color: Colors.grey, fontSize: 16),
-                    ),
-                    const SizedBox(height: 15),
-                    ElevatedButton(
-                      onPressed: () {
-                        // Aici vom conecta Widget-ul tău existent de Google Maps
-                      },
-                      child: const Text('Încarcă Google Maps'),
-                    ),
-                  ],
-                ),
-              ),
+            child: GoogleMap(
+              initialCameraPosition: _initialPosition,
+              onMapCreated: (GoogleMapController controller) {
+                _mapController.complete(controller);
+              },
+              myLocationEnabled: true,
+              myLocationButtonEnabled: true,
             ),
           ),
         ],
