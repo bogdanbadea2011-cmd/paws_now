@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:paws_now/pet_sitter_screen.dart';
 import 'add_dog_screen.dart';
 import 'history_screen.dart';
 import 'profile_screen.dart';
@@ -127,6 +128,17 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const PetSitterScreen()),
+                        );
+                      },
+                      icon: const Icon(Icons.hotel),
+                      label: const Text('Caută Pet Sitter (Vacanță)'),
+                    ),
+                    const SizedBox(height: 15),
                     TextField(
                       controller: _searchController,
                       decoration: InputDecoration(
